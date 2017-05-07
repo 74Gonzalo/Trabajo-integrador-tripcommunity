@@ -1,27 +1,31 @@
 
 <?php
 
+$mail = $_POST;
+
 require_once("funciones.php");
 $nombre = "";
 $usuario = "";
+$mail = "";
 $contraseña = "";
 $conf_pass = "";
 
-$errores = validarInformacion($_POST);
+$errores=[];
+
+//$datos = $_POST;
 
 
-$a = json_encode($_POST);
 
-if (count($errores)==0) {
-  $fp = fopen ('base-datos.json','a');
-  fwrite ($fp, $a.PHP_EOL);
-  fclose($fp);
-}
   //DECLARACION DE JSON Y ENVIO A base-datos.txt, algo está fallando..
 // si va después, cuando valida correcto, hay un exit por lo que no se envían registros correctos
 if($_POST){
-  $errores = validarInformacion($_POST);
+  $errores = validarInformacion($datos);
   if (count($errores)==0){
+    $data = crearUsuario($datos);
+    $a = json_encode($data);
+    $fp = fopen ('b-datos.json','a');
+    fwrite ($fp, $a.PHP_EOL);
+    fclose($fp);
     header("Location:registro.php");exit;
     //acá debería ir el envío de la info del usuario a un archivo json o una base de datos
   }
@@ -33,19 +37,13 @@ $nombre = $_POST["Nombre"];
 if(!isset($errores)>0){
   $usuario = $_POST["Usuario"];
 }
-
 if(!isset($errores)>0){
   $usuario = $_POST["password"];
 }
 if (!isset($errores)>0) {
 $usuario = $_POST["conf_pass"];
 }
-
-
-
-
 ?>
-
 <!DOCTYPE html>
 <html>
   <head>
@@ -71,9 +69,12 @@ $usuario = $_POST["conf_pass"];
       <!--//////////////////////////////////////////// FORMULARIO  //////////////////////////////////////////// -->
 
     <div class="form">
-      <form action="formularios.php" method="post">
+      <form action="formularios.php" method="post" enctype="multipart/form-data">
 
-<?php if (count($errores) > 0) {?>
+
+<?php
+//$errores =
+ if (count($errores) > 0) {?>
   <ul>
     <?php foreach ($errores as $error) {?>
     <li><?=$error?></li>
@@ -81,26 +82,28 @@ $usuario = $_POST["conf_pass"];
   </ul>
 <?php }?>
 
-        <label>Nombre: </label><input type="text" name="Nombre"required>
+        <label>Nombre: </label><input type="text" name="Nombre">
         <br><br><br>
         <label>Usuario: </label><input type="text" name="Usuario"required>
+        <br><br><br>
+        <label>e-mail: </label><input type="text" name="mail" >
         <br><br><br>
         <label>Contraseña: </label><input type="password" name="password"required>
         <br><br><br>
         <label>Confirmá contraseña: </label><input type="password" name="conf_pass"required>
         <br><br><br>
         <label>Género:</label>
-        <label>Hombre</label><input type="radio" name="Genero"required>
-        <label>Mujer</label><input type="radio" name="Genero"required>
-        <label>Otro</label><input type="radio" name="Genero"required>
+        <label>Hombre</label><input type="radio" name="genero"required>
+        <label>Mujer</label><input type="radio" name="genero"required>
+        <label>Otro</label><input type="radio" name="genero"required>
         <br><br><br>
         <label>Tipo de viajero:</label>
         <label>Mochilero</label><input type="checkbox" name="Mochilero">
-        <label>Lujoso</label><input type="checkbox" name="Hostels">
-        <label>Viajero Laboral</label><input type="checkbox" name="Viajes-cortos">
+        <label>Hostels</label><input type="checkbox" name="Hostels">
+        <label>Escapadas</label><input type="checkbox" name="Viajes-cortos">
         <br><br><br>
         <label>País</label>
-        <select name="País"required>
+        <select name="pais"required>
           <<option value="Se">Seleccioná</option>
           <option value="Ar">Argentina</option>
           <option value="Bo">Bolivia</option>
@@ -120,7 +123,7 @@ $usuario = $_POST["conf_pass"];
         <br><br><br>
         <label>Acerca de vos</label>
         <br><br><br>
-        <textarea name="Contanos" rows="8" cols="80"></textarea required>
+        <textarea name="contanos" rows="8" cols="80"></textarea required>
           <br><br><br>
           <button type="submit" name="Enviar">ENVIAR</button>
         </section>
